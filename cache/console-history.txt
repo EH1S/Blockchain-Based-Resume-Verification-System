@@ -1,0 +1,15 @@
+await resumeVerifier.getAllResumes(signer.address);
+await resumeVerifier.verifyResume(signer.address,0);
+const [signer] = await ethers.getSigners();
+await resumeVerifier.uploadResume("Mansi Parmar","QnTestCID12345 ");
+await resumeVerifier.getAllResumes(signer.address);
+const [signer] = await ethers.getSigners();
+await resumeVerifier.uploadResume("Mansi Parmar"," ");
+await resumeVerifier.admin();
+const resumeVerifier = await ResumeVerifier.attach("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512");
+const ResumeVerifier = await ethers.getContractFactory("ResumeVerifier");
+const ethers = hre.ethers;
+const hre = require("hardhat");
+exit
+it ResumeVerifier.attach("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512");
+const ResumeVerifier = await ethers.getContractFacconst resumeVerifier = awa
