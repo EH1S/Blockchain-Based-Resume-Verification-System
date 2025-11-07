@@ -40,7 +40,6 @@ getResume(address, index) → Fetches a single resume.
 
 transferAdmin(address) → Transfer admin ownership.  
 
----
 
 ## 🧱 Project Architecture  
 
