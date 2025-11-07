@@ -25,6 +25,23 @@ A **decentralized application (DApp)** built using **React, Solidity, Pinata (IP
 
 ---
 
+## 🔗 Smart Contract Overview  
+
+**Contract:** `ResumeVerifier.sol`  
+
+```solidity
+uploadResume(name, ipfsCid) → User uploads a resume.  
+
+verifyResume(candidate, index) → Admin verifies a resume.  
+
+getAllResumes(address) → Returns all resumes for a given user.  
+
+getResume(address, index) → Fetches a single resume.  
+
+transferAdmin(address) → Transfer admin ownership.  
+
+---
+
 ## 🧱 Project Architecture  
 
 ```plaintext
