@@ -1,91 +1,61 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import React from "react";
+import { BrowserProvider } from "ethers";
 import { useNavigate } from "react-router-dom";
+import { ADMIN_ADDRESS } from "../eth";
 
 export default function Hero() {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Replace with your real auth logic
-  const [account, setAccount] = useState(null);
 
-  // Connect MetaMask
-  const connectMetaMask = async () => {
-    if (window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        setAccount(accounts[0]);
-      } catch (err) {
-        console.error("MetaMask connection rejected");
-      }
+  const connectWallet = async () => {
+    if (!window.ethereum) return alert("Please install MetaMask first!");
+    const provider = new BrowserProvider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = await provider.getSigner();
+    const addr = await signer.getAddress();
+    alert(`✅ Wallet connected: ${addr.slice(0, 6)}...${addr.slice(-4)}`);
+  };
+
+  const handleVerifyProof = async () => {
+    if (!window.ethereum) return alert("Please install MetaMask first!");
+    const provider = new BrowserProvider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = await provider.getSigner();
+    const addr = (await signer.getAddress()).toLowerCase();
+
+    // ✅ Redirect based on role
+    if (addr === ADMIN_ADDRESS) {
+      navigate("/verify");
     } else {
-      alert("MetaMask not found! Please install it.");
+      navigate("/upload");
     }
-  };
-
-  // Listen for account changes
-  useEffect(() => {
-    if (window.ethereum) {
-      window.ethereum.on("accountsChanged", (accounts) => {
-        if (accounts.length > 0) setAccount(accounts[0]);
-        else setAccount(null);
-      });
-    }
-  }, []);
-
-  const handleUpload = () => {
-    if (!isLoggedIn) navigate("/login");
-    else navigate("/upload");
-  };
-
-  const handleVerify = () => {
-    if (!isLoggedIn) navigate("/login");
-    else navigate("/verify");
   };
 
   return (
-    <section className="relative text-center py-24 px-4 bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 text-white rounded-b-3xl overflow-hidden">
-      <motion.h2
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="text-5xl font-extrabold mb-6 relative z-10"
-      >
-        Secure Your Resume on Blockchain
-      </motion.h2>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="text-lg max-w-2xl mx-auto mb-8 relative z-10"
-      >
+    <section className="text-center py-20 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white">
+      <h1 className="text-4xl font-bold mb-4">Secure Your Resume on Blockchain</h1>
+      <p className="mb-8 text-lg">
         Upload, hash, and verify your documents securely. Share a proof link that can’t be tampered with.
-      </motion.p>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="flex justify-center gap-4 relative z-10 flex-wrap"
-      >
+      </p>
+      <div className="flex justify-center gap-4">
         <button
-          onClick={handleUpload}
-          className="px-6 py-3 bg-white text-purple-600 font-semibold rounded-lg hover:scale-105 transition"
+          onClick={() => navigate("/upload")}
+          className="bg-white text-indigo-700 px-5 py-2 rounded-md font-semibold hover:bg-gray-200 transition"
         >
           Upload Now
         </button>
         <button
-          onClick={handleVerify}
-          className="px-6 py-3 bg-white text-purple-600 font-semibold rounded-lg hover:scale-105 transition"
+          onClick={handleVerifyProof}
+          className="bg-white text-indigo-700 px-5 py-2 rounded-md font-semibold hover:bg-gray-200 transition"
         >
           Verify Proof
         </button>
         <button
-          onClick={connectMetaMask}
-          className={`px-6 py-3 ${account ? "bg-green-500" : "bg-yellow-400"} text-white font-semibold rounded-lg hover:scale-105 transition`}
+          onClick={connectWallet}
+          className="bg-yellow-400 text-black px-5 py-2 rounded-md font-semibold hover:bg-yellow-500 transition"
         >
-          {account ? `Connected: ${account.slice(0,6)}...${account.slice(-4)}` : "Connect MetaMask"}
+          Connect MetaMask
         </button>
-      </motion.div>
+      </div>
     </section>
   );
 }

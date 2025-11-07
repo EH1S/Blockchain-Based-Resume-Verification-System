@@ -1,23 +1,67 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { BrowserProvider } from "ethers";
+
+//MetaMask wallet address
+const ADMIN_ADDRESS = "0xab5a7c4fb9a1997d10b50731165061cd3f48d135".toLowerCase();
 
 export default function Login() {
   const navigate = useNavigate();
+  const [status, setStatus] = useState("");
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    navigate("/dashboard"); // Redirect to Dashboard after login
+  // ✅ Handle MetaMask login and role-based redirect
+  const handleLogin = async () => {
+    try {
+      if (!window.ethereum) {
+        alert("Please install MetaMask first!");
+        return;
+      }
+
+      setStatus("Connecting to MetaMask...");
+
+      // Connect to MetaMask
+      const provider = new BrowserProvider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = await provider.getSigner();
+      const userAddress = (await signer.getAddress()).toLowerCase();
+
+      // ✅ Role-based navigation
+      if (userAddress === ADMIN_ADDRESS) {
+        setStatus("Welcome Admin! Redirecting to Verify Page...");
+        navigate("/verify");
+      } else {
+        setStatus("Welcome! Redirecting to Upload Page...");
+        navigate("/upload");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setStatus("Error connecting to MetaMask. Please try again.");
+    }
   };
 
   return (
-    <div className="min-h-[80vh] flex flex-col items-center justify-center px-4">
-      <h2 className="text-4xl font-bold mb-6">Log In</h2>
-      <form className="flex flex-col gap-4 w-full max-w-sm" onSubmit={handleLogin}>
-        <input type="email" placeholder="Email" className="p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800" />
-        <input type="password" placeholder="Password" className="p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800" />
-        <button className="py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">Log In</button>
-      </form>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-8 w-full max-w-md text-center">
+        <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
+          Resume Verification DApp
+        </h1>
+        <p className="text-gray-600 dark:text-gray-300 mb-4">
+          Login securely with MetaMask to continue
+        </p>
+
+        <button
+          onClick={handleLogin}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200"
+        >
+          Connect MetaMask & Log In
+        </button>
+
+        {status && (
+          <p className="mt-4 text-sm text-gray-700 dark:text-gray-300">
+            {status}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
-
